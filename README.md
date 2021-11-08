@@ -69,3 +69,13 @@ The *meet_our_team* folder confirms the three users, and each document has refer
 ![secret-folder_logon](https://github.com/FRobertAllen/Red-Team-Vs-Blue-Team/blob/main/Images/secret-folder_logon.PNG)
 
 Ashton's login screen, we need his password to gain access to his *secret_folder*.
+
+### Further Recon
+Let's do a vulnerablity scan on the target IP.
+```
+nmap -A ---script=vuln -vvv 192.168.1.105
+```
+![nmap vuln scan command](https://github.com/FRobertAllen/Red-Team-Vs-Blue-Team/blob/main/Images/nmap%20vuln%20scan%20command.PNG)
+![vuln-scan3](https://github.com/FRobertAllen/Red-Team-Vs-Blue-Team/blob/main/Images/vuln-scan3.jpg)
+![vuln-scan4](https://github.com/FRobertAllen/Red-Team-Vs-Blue-Team/blob/main/Images/vuln-scan4.PNG)
+![vuln-scan7](https://github.com/FRobertAllen/Red-Team-Vs-Blue-Team/blob/main/Images/vuln-scan7.PNG)

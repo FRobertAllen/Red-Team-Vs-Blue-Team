@@ -66,6 +66,5 @@ The *meet_our_team* folder confirms the three users, and each document has refer
 
 ![meet our team](https://github.com/FRobertAllen/Red-Team-Vs-Blue-Team/blob/main/Images/meet%20our%20team.PNG)
 
-)
 
 Ashton's login screen, we need his password to gain access to his *secret_folder*.

